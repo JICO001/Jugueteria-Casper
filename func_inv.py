@@ -1,5 +1,45 @@
+
 import sql_func as sql
 from typing import Literal
+import colorama as c
+
+
+# Inicializa Colorama para mostrar colores correctamente en Windows.
+c.just_fix_windows_console()
+
+# Colores de la aplicación.
+VERDE = c.Fore.GREEN
+ROJO = c.Fore.RED
+AMARILLO = c.Fore.YELLOW
+CIAN = c.Fore.CYAN
+CIAN_TENUE = c.Style.DIM + c.Fore.CYAN
+NORMAL = c.Style.RESET_ALL
+
+
+def mensaje_ok(mensaje):
+    """Muestra un mensaje de ejecución correcta en verde."""
+    print(f"{VERDE}{mensaje}{NORMAL}")
+
+def mensaje_error(mensaje):
+    """Muestra un mensaje de error en rojo."""
+    print(f"{ROJO}{mensaje}{NORMAL}")
+
+def mensaje_aviso(mensaje):
+    """Muestra un aviso en amarillo."""
+    print(f"{AMARILLO}{mensaje}{NORMAL}")
+
+def pedir_input(mensaje):
+    """Muestra las preguntas al usuario en amarillo."""
+    return input(f"{AMARILLO}{mensaje}{NORMAL}")
+
+def separador():
+    """Muestra una línea divisoria en cian tenue."""
+    print(f"{CIAN_TENUE}{'-' * 119}{NORMAL}")
+
+def mostrar_opcion(numero, opcion):
+    """Muestra las opciones de los menús en cian."""
+    print(f"{CIAN}{numero}. {opcion}{NORMAL}")
+
 
 
 def menu_principal():
@@ -20,9 +60,12 @@ def menu_principal():
         "Gestionar productos",
         "Salir"
     ]
-    print("-" * 119)
+    separador()
+
     for i, opcion in enumerate(menu_principal, start=1):
-        print(f"{i}. {opcion}")
+        mostrar_opcion(i, opcion)
+
+    separador()
 
     boton = boton_opciones(menu_principal)
     return boton
@@ -44,18 +87,18 @@ def boton_opciones(opciones):
             del rango permitido.
     """
     try:
-        boton = int(input("\nEscribe el número de la opción que quieres elegir: "))
+        boton = int(pedir_input("\nEscribe el número de la opción que quieres elegir: "))
 
         if not 1 <= boton <= len(opciones):
-            print(f"\nError: escribe un número del 1 al {len(opciones)}")
+            mensaje_error(f"\nError: escribe un número del 1 al {len(opciones)}")
             return None
 
     except ValueError:
-        print(f"\nError: debes ingresar un número del 1 al {len(opciones)}")
+        mensaje_error(f"\nError: debes ingresar un número del 1 al {len(opciones)}")
         return None
 
     except Exception as error:
-        print(f"\nError inesperado: {error}")
+        mensaje_error(f"\nError inesperado: {error}")
         return None
 
     return boton
@@ -74,12 +117,12 @@ def input_nombre():
     """
 
     for intentos in range(5):
-        nombre = input("\nIngrese el nombre del producto: ").upper().strip()
+        nombre = pedir_input("\nIngrese el nombre del producto: ").upper().strip()
 
         if not nombre or nombre == " ":
-            print("\nEl campo no puede quedar vacío")
+            mensaje_error("\nEl campo no puede quedar vacío")
             if intentos == 4:
-                print("\nDemasiados intentos, volviendo al menú principal...")
+                mensaje_error("\nDemasiados intentos, volviendo al menú principal...")
                 return True
             continue 
 
@@ -97,7 +140,7 @@ def input_descripcion():
         str: Descripción ingresada por el usuario. Puede ser una cadena
             vacía si no se proporciona una descripción.
     """
-    descripcion = input("\nIngrese una descripción del producto (opcional): ").upper().strip()
+    descripcion = pedir_input("\nIngrese una descripción del producto (opcional): ").upper().strip()
     return descripcion
 
 def input_cantidad():
@@ -115,23 +158,23 @@ def input_cantidad():
     
     for intentos in range(5):
         try:
-            cantidad = int(input("\nIngrese la cantidad del producto: "))
+            cantidad = int(pedir_input("\nIngrese la cantidad del producto: "))
 
         except ValueError:
-            print("\nError: El valor tiene que ser un número entero positivo")
+            mensaje_error("\nError: El valor tiene que ser un número entero positivo")
 
         except Exception as error:
-            print(f"Error inesperado {error}\n Volviendo al menú principal...")
+            mensaje_error(f"Error inesperado {error}\n Volviendo al menú principal...")
             return 0
 
         else: 
             if cantidad > 0:
                 return cantidad
             
-            print("\nError: El valor tiene que ser un número entero positivo")
+            mensaje_error("\nError: El valor tiene que ser un número entero positivo")
      
         if intentos == 4:
-            print("\nDemasiados intentos, volviendo al menú principal...")
+            mensaje_error("\nDemasiados intentos, volviendo al menú principal...")
             return 0    
 
 def input_precio():
@@ -149,23 +192,23 @@ def input_precio():
     
     for intentos in range(5):
         try:
-            precio = float(input("\nIngrese el precio del producto: "))
+            precio = float(pedir_input("\nIngrese el precio del producto: "))
 
         except ValueError:
-            print("\nError: El precio tiene que ser un número real positivo")
+            mensaje_error("\nError: El precio tiene que ser un número real positivo")
 
         except Exception as error:
-            print(f"Error inesperado {error}\n Volviendo al menú principal...")
+            mensaje_error(f"Error inesperado {error}\n Volviendo al menú principal...")
             return 0
 
         else: 
             if precio > 0:
                 return precio
             
-            print("\nError: El precio tiene que ser un número real positivo")
+            mensaje_error("\nError: El precio tiene que ser un número real positivo")
      
         if intentos == 4:
-            print("\nDemasiados intentos, volviendo al menú principal...")
+            mensaje_error("\nDemasiados intentos, volviendo al menú principal...")
             return 0    
 
 def elegir_sub_menues(opciones):
@@ -187,7 +230,7 @@ def elegir_sub_menues(opciones):
 
     
     for i, opcion in enumerate(opciones, start=1):
-            print(f"{i}. {opcion}")
+        mostrar_opcion(i, opcion)
     
     for intentos in range(5):
         boton = boton_opciones(opciones)
@@ -196,10 +239,9 @@ def elegir_sub_menues(opciones):
             return boton
 
         if intentos == 4:
-            print("\nDemasiados intentos, volviendo al menú principal...")
+            mensaje_error("\nDemasiados intentos, volviendo al menú principal...")
             return True
         
-        print("\nIngresa una opción válida.")
 
 
         
@@ -219,22 +261,25 @@ def opciones_categorias(opciones):
         espacios al inicio o al final.
     True: Si se agotan los cinco intentos de selección.
     """
-
-    print("\nCATEGORÍAS DE PRODUCTOS\n")
+    print("\n")
+    separador()
+    print(f"{CIAN}CATEGORÍAS DE PRODUCTOS{NORMAL}\n")
 
     for i, opcion in enumerate(opciones, start=1):
-                print(f"{i}. {opcion}")
-        
+        mostrar_opcion(i, opcion)
+
+    separador()
+
     for intentos in range(5):
         boton = boton_opciones(opciones)
 
         if boton is not None:
             return opciones[boton - 1].upper().strip()
 
-        print("\nIngresa una opción válida.")
+        mensaje_error("\nIngresa una opción válida.")
 
         if intentos == 4:
-            print("\nDemasiados intentos, volviendo al menú principal...")
+            mensaje_error("\nDemasiados intentos, volviendo al menú principal...")
             return True
 
 def boton_si_no() -> Literal["si", "no", True]:
@@ -251,12 +296,12 @@ def boton_si_no() -> Literal["si", "no", True]:
     
     for intentos in range(5):
 
-        si = (input("\n(si/no): ")).strip().lower()
+        si = (pedir_input("\n(si/no): ")).strip().lower()
      
         if not si or si == " " or (si != "si" and si != "no"):
-         print("Error! Escriba si o no")
+         mensaje_error("Error! Escriba si o no")
          if intentos == 4:
-            print("\nDemasiados intentos, volviendo al menú principal...\n\n") 
+            mensaje_error("\nDemasiados intentos, volviendo al menú principal...\n\n") 
             return True
 
          continue
@@ -287,7 +332,7 @@ def menu_consultar_productos():
         "Ver productos registrados en esta sesión",
         "Volver al menú principal"
     ]
-    print("-" * 119)
+    separador()
     elegir = elegir_sub_menues(menu_consultas)
     return elegir
 
@@ -309,7 +354,7 @@ def encabezado_tabla():
         f"{'CATEGORÍA':<35}"
     )
 
-    print("-" * 119)
+    separador()
 
 def contenido_tabla(producto):
     """
@@ -356,7 +401,7 @@ def print_tabla_varios(tabla_productos):
             contenido_tabla(producto)
     
     else:
-        print("\nNo hay productos para mostrar.\n")
+        mensaje_aviso("\nNo hay productos para mostrar.\n")
 
 def print_tabla_unico(producto):
     """
@@ -375,7 +420,7 @@ def print_tabla_unico(producto):
          encabezado_tabla()
          contenido_tabla(producto)
     else:
-        print("Producto no encontrado.")
+        mensaje_aviso("Producto no encontrado.")
 
 def validacion_id():
     """
@@ -390,23 +435,23 @@ def validacion_id():
     """
     for intentos in range(5):
         try:
-            id_busqueda = int(input("\nIngrese el id del producto: "))
+            id_busqueda = int(pedir_input("\nIngrese el id del producto: "))
 
         except ValueError:
-            print("\nError: El valor tiene que ser un número entero positivo")
+            mensaje_error("\nError: El valor tiene que ser un número entero positivo")
 
         except Exception as error:
-            print(f"Error inesperado {error}\n Volviendo al menú principal...")
+            mensaje_error(f"Error inesperado {error}\n Volviendo al menú principal...")
             return True
 
         else: 
             if id_busqueda > 0:
                 return id_busqueda
             
-            print("\nError: El valor tiene que ser un número entero positivo")
+            mensaje_error("\nError: El valor tiene que ser un número entero positivo")
      
         if intentos == 4:
-            print("\nDemasiados intentos, volviendo al menú principal...")
+            mensaje_error("\nDemasiados intentos, volviendo al menú principal...")
             return True
 
 
@@ -435,7 +480,7 @@ def buscar_producto_id():
         print_tabla_unico(encontrado)
         return id_busqueda 
     else:
-        print("No se encontro el producto")
+        mensaje_aviso("No se encontro el producto")
         return True 
    
 def visualizar_todos_los_productos():
@@ -545,7 +590,7 @@ def menu_gestionar_productos():
         "Eliminar un producto",
         "Volver al menú principal"
     ]
-    print("-" * 119)
+    separador()
     elegir = elegir_sub_menues(menu_gestionar)
     return elegir
 
@@ -572,7 +617,7 @@ def actualizar_nombre_de_un_producto():
     if id is True:
         return
 
-    print("Quieres modificar este producto? (si/no)")
+    print(f"{AMARILLO}¿Quieres modificar este producto? (si/no){NORMAL}")
     confirmacion = boton_si_no()
     match confirmacion:
         case True:
@@ -606,7 +651,7 @@ def actualizar_descripcion_de_un_producto():
     if id is True:
         return
 
-    print("Quieres modificar este producto? (si/no)")
+    print(f"{AMARILLO}¿Quieres modificar este producto? (si/no){NORMAL}")
     confirmacion = boton_si_no()
 
     match confirmacion:
@@ -639,7 +684,7 @@ def actualizar_cantidad_de_un_producto():
     id = buscar_producto_id()
     if id is True:
         return 
-    print("Quieres modificar este producto? (si/no)")
+    print(f"{AMARILLO}¿Quieres modificar este producto? (si/no){NORMAL}")
     confirmacion = boton_si_no()
     match confirmacion:
         case True:
@@ -673,7 +718,7 @@ def actualizar_precio_de_un_producto():
     id = buscar_producto_id()
     if id is True:
         return 
-    print("Quieres modificar este producto? (si/no)")
+    print(f"{AMARILLO}¿Quieres modificar este producto? (si/no){NORMAL}")
     confirmacion = boton_si_no()
     match confirmacion:
         case True:
@@ -710,7 +755,7 @@ def actualizar_categoria_de_un_producto(categorias):
     id = buscar_producto_id()
     if id is True:
         return
-    print("Quieres modificar este producto? (si/no)")
+    print(f"{AMARILLO}¿Quieres modificar este producto? (si/no){NORMAL}")
     confirmacion = boton_si_no()
     match confirmacion:
         case True:
@@ -742,7 +787,7 @@ def eliminar_un_producto():
     id = buscar_producto_id()
     if id is True:
         return
-    print("\nQuiere eliminar el producto?\n")
+    print(f"{AMARILLO}¿Quieres eliminar este producto? (si/no){NORMAL}")
     confirmacion = boton_si_no()
     match confirmacion:
         case "no":

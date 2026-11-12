@@ -4,6 +4,30 @@ import os
 import sys
 import shutil
 from pathlib import Path
+import colorama as c
+
+
+c.just_fix_windows_console()
+
+# Colores de la aplicación.
+VERDE = c.Fore.GREEN
+ROJO = c.Fore.RED
+AMARILLO = c.Fore.YELLOW
+NORMAL = c.Style.RESET_ALL
+
+
+def mensaje_ok(mensaje):
+    """Muestra un mensaje de ejecución correcta en verde."""
+    print(f"{VERDE}{mensaje}{NORMAL}")
+
+def mensaje_error(mensaje):
+    """Muestra un mensaje de error en rojo."""
+    print(f"{ROJO}{mensaje}{NORMAL}")
+
+def mensaje_aviso(mensaje):
+    """Muestra un aviso en amarillo."""
+    print(f"{AMARILLO}{mensaje}{NORMAL}")
+
 
 
 def obtener_directorio_datos():
@@ -165,7 +189,7 @@ def registrar_producto(nombre,descripcion,cantidad,precio,categoria):
         return id_producto
 
     except sqlite3.Error as error: 
-        print(f"\nError al ingresar producto: '{error}'\n")
+        mensaje_error(f"\nError al ingresar producto: '{error}'\n")
         return None
 
     finally:
@@ -203,7 +227,7 @@ def buscar_producto(id_producto):
         return producto
 
     except sqlite3.Error as error:
-        print(f"\nError al consultar el producto: {error}\n")
+        mensaje_error(f"\nError al consultar el producto: {error}\n")
         return None
 
     finally:
@@ -249,7 +273,7 @@ def obtener_productos():
         productos = cursor.fetchall()
         return productos
     except sqlite3.Error as error:
-            print(f"\nError al consultar los productos: {error}\n")
+            mensaje_error(f"\nError al consultar los productos: {error}\n")
             return None
     
     finally:
@@ -291,7 +315,7 @@ def reporte_productos_segun_limite(limite):
 
 
     except sqlite3.Error as error:
-            print(f"\nError al generar reporte: {error}\n")
+            mensaje_error(f"\nError al generar reporte: {error}\n")
             return None
     
     finally:
@@ -340,7 +364,7 @@ def obtener_productos_por_coincidencia_nombre(nombre_productos):
         return productos
 
     except sqlite3.Error as error:
-        print(f"\nError al consultar los productos: {error}\n")
+        mensaje_error(f"\nError al consultar los productos: {error}\n")
         return None
 
     finally:
@@ -388,7 +412,7 @@ def obtener_productos_por_categoria(categoria_productos):
         return productos
 
     except sqlite3.Error as error:
-        print(f"\nError al consultar los productos: {error}\n")
+        mensaje_error(f"\nError al consultar los productos: {error}\n")
         return None
 
     finally:
@@ -428,13 +452,13 @@ def actualizar_nombre(id,nuevo_nombre):
         conexion.commit()
 
         if cursor.rowcount > 0:
-            print("\nNombre actualizado correctamente.\n")
+            mensaje_ok("\nNombre actualizado correctamente.\n")
 
         else: 
-            print("\nEl producto no fue encontrado, verifique el id\n")
+            mensaje_aviso("\nEl producto no fue encontrado, verifique el id\n")
 
     except sqlite3.Error as error:
-            print(f"\nError al actualizar el nombre: {error}\n")
+            mensaje_error(f"\nError al actualizar el nombre: {error}\n")
     
     finally:
         if conexion is not None:
@@ -470,13 +494,13 @@ def actualizar_descripcion(id,nueva_descripcion):
         conexion.commit()
 
         if cursor.rowcount > 0:
-            print("\nDescripción actualizada correctamente.\n")
+            mensaje_ok("\nDescripción actualizada correctamente.\n")
 
         else: 
-            print("\nEl producto no fue encontrado, verifique el id\n")
+            mensaje_aviso("\nEl producto no fue encontrado, verifique el id\n")
 
     except sqlite3.Error as error:
-            print(f"\nError al actualizar la descripción: {error}\n")
+            mensaje_error(f"\nError al actualizar la descripción: {error}\n")
     
     finally:
         if conexion is not None:
@@ -512,13 +536,13 @@ def actualizar_cantidad(id,nueva_cantidad):
         conexion.commit()
 
         if cursor.rowcount > 0:
-            print("\nCantidad actualizada correctamente.\n")
+            mensaje_ok("\nCantidad actualizada correctamente.\n")
 
         else: 
-            print("\nEl producto no fue encontrado, verifique el id\n")
+            mensaje_aviso("\nEl producto no fue encontrado, verifique el id\n")
 
     except sqlite3.Error as error:
-            print(f"\nError al actualizar la cantidad: {error}\n")
+            mensaje_error(f"\nError al actualizar la cantidad: {error}\n")
     
     finally:
         if conexion is not None:
@@ -554,13 +578,13 @@ def actualizar_precio(id,nuevo_precio):
         conexion.commit()
 
         if cursor.rowcount > 0:
-            print("\nPrecio actualizado correctamente.\n")
+            mensaje_ok("\nPrecio actualizado correctamente.\n")
 
         else: 
-            print("\nEl producto no fue encontrado, verifique el id\n")
+            mensaje_aviso("\nEl producto no fue encontrado, verifique el id\n")
 
     except sqlite3.Error as error:
-            print(f"\nError al actualizar el precio: {error}\n")
+            mensaje_error(f"\nError al actualizar el precio: {error}\n")
     
     finally:
         if conexion is not None:
@@ -596,13 +620,13 @@ def actualizar_categoria(id,nueva_categoria):
         conexion.commit()
 
         if cursor.rowcount > 0:
-            print("\nCategoría actualizada correctamente.\n")
+            mensaje_ok("\nCategoría actualizada correctamente.\n")
 
         else: 
-            print("\nEl producto no fue encontrado, verifique el id\n")
+            mensaje_aviso("\nEl producto no fue encontrado, verifique el id\n")
 
     except sqlite3.Error as error:
-            print(f"\nError al actualizar la categoría: {error}\n")
+            mensaje_error(f"\nError al actualizar la categoría: {error}\n")
     
     finally:
         if conexion is not None:
@@ -639,13 +663,13 @@ def eliminar_producto(id):
         conexion.commit()
 
         if cursor.rowcount > 0:
-            print("\nEl producto ha sido eliminado correctamente.\n")
+            mensaje_ok("\nEl producto ha sido eliminado correctamente.\n")
 
         else:
-            print("\nEl producto no fue encontrado.\n")
+            mensaje_aviso("\nEl producto no fue encontrado.\n")
 
     except sqlite3.Error as error:
-            print(f"\nError al eliminar un producto: {error}\n")
+            mensaje_error(f"\nError al eliminar un producto: {error}\n")
     
     finally:
         if conexion is not None:

@@ -65,20 +65,23 @@ def registrar_nuevo_producto(ultimos_registros,categorias):
             break
 
         
-        print(f"\nVerifique que los datos sean correctos.\n\n"
-                f"Nombre: {nombre}.\n"
-                f"Descripción: {descripcion}.\n"
-                f"Cantidad: {cantidad}\n"
-                f"Precio: {precio}\n"
-                f"Categoría: {categoria}\n"
-                f"\nPara registrar el producto, escriba si.\nPara descartar el producto escriba no.")
+        fn.mensaje_aviso(
+            f"\nVerifique que los datos sean correctos.\n\n"
+            f"Nombre: {nombre}.\n"
+            f"Descripción: {descripcion}.\n"
+            f"Cantidad: {cantidad}\n"
+            f"Precio: {precio}\n"
+            f"Categoría: {categoria}\n"
+            f"\nPara registrar el producto, escriba si.\n"
+            f"Para descartar el producto escriba no."
+        )
 
         confirmacion = fn.boton_si_no()
         match confirmacion:
             case True:
                 break
             case "no":
-                print("\nPara ingresar otro producto, escriba si. \nPara volver al menú principal escriba no")
+                fn.mensaje_aviso("\nPara ingresar otro producto, escriba si. \nPara volver al menú principal escriba no")
                 bucle = fn.boton_si_no()
                 if bucle is True:
                     break 
@@ -87,9 +90,9 @@ def registrar_nuevo_producto(ultimos_registros,categorias):
                 else:
                     continue
             case "si":
-                print(f"\nDatos cargados correctamente.\n")
+                fn.mensaje_ok(f"\nDatos cargados correctamente.\n")
             case _:
-                print("Error! Volviendo al menú principal...")
+                fn.mensaje_error("Error! Volviendo al menú principal...")
                 break
                 
         id_ultimo_registro = sql.registrar_producto(nombre,descripcion,cantidad,precio,categoria)
@@ -100,7 +103,7 @@ def registrar_nuevo_producto(ultimos_registros,categorias):
 
             ultimos_registros.append(ultimo_registro)
 
-        print("\nPara ingresar otro producto, escriba si. \nPara volver al menú principal escriba no")
+        fn.mensaje_aviso("\nPara ingresar otro producto, escriba si. \nPara volver al menú principal escriba no")
 
         carga = fn.boton_si_no()
         if carga is True:
@@ -151,7 +154,7 @@ def consultar_productos(categorias,ultimos_registros):
             case 7:
                 break
             case _:
-                print("Error, volviendo al menú principal...")
+                fn.mensaje_error("Error, volviendo al menú principal...")
                 break
 
 def gestionar_productos(categorias):
@@ -295,8 +298,8 @@ while True:
             gestionar_productos(categorias)
                               
       case 4: 
-            print("\nSaliendo del programa...\n\n")
-            exit()
+            fn.mensaje_aviso("\nSaliendo del programa...\n")
+            raise SystemExit
 
       case _:
             continue
