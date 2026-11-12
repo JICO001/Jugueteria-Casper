@@ -25,7 +25,7 @@ jobs:
             asset: JugueteriaCasper-macos-intel-x86_64.tar.gz
 
           - name: macOS Apple Silicon
-            runner: macos-15
+            runner: macos-26
             asset: JugueteriaCasper-macos-apple-silicon-arm64.tar.gz
 
     steps:
