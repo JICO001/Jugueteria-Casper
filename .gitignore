@@ -1,0 +1,33 @@
+
+# Archivos temporales de Python
+__pycache__/
+*.py[cod]
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Configuración local del editor
+.vscode/
+.idea/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos generados al compilar
+/build/
+/dist/
+
+# Bases de datos locales en la raíz del proyecto
+/Inventario.db
+
+# Archivos auxiliares de SQLite
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Archivos de respaldo
+*.bak
+*.backup
