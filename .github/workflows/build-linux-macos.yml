@@ -18,12 +18,13 @@ jobs:
         include:
           - name: Ubuntu 22.04 x86_64
             runner: ubuntu-22.04
+            platform: ubuntu
             asset: JugueteriaCasper-ubuntu-22.04-x86_64.tar.gz
 
           - name: macOS Intel
             runner: macos-15-intel
+            platform: macos
             asset: JugueteriaCasper-macos-intel-x86_64.tar.gz
-
 
     steps:
       - name: Descargar código fuente
@@ -47,12 +48,126 @@ jobs:
           --add-data "datos_iniciales/Inventario.db:datos_iniciales"
           main.py
 
-      - name: Crear archivo comprimido
+      # UBUNTU
+      - name: Preparar paquete de Ubuntu
+        if: matrix.platform == 'ubuntu'
         run: |
-          tar -czf "${{ matrix.asset }}" -C dist JugueteriaCasper
+          mkdir -p dist/JugueteriaCasper-linux
+          cp dist/JugueteriaCasper dist/JugueteriaCasper-linux/
+          cp recursos/casper.png dist/JugueteriaCasper-linux/
 
-      - name: Adjuntar ejecutable a GitHub Release
+          cat > dist/JugueteriaCasper-linux/instalar.sh <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+          BIN_DIR="$HOME/.local/bin"
+          ICON_DIR="$HOME/.local/share/icons/hicolor/256x256/apps"
+          DESKTOP_DIR="$HOME/.local/share/applications"
+
+          mkdir -p "$BIN_DIR" "$ICON_DIR" "$DESKTOP_DIR"
+
+          install -m 755 "$ROOT/JugueteriaCasper" "$BIN_DIR/JugueteriaCasper"
+          install -m 644 "$ROOT/casper.png" "$ICON_DIR/JugueteriaCasper.png"
+
+          ESCAPED_BIN="${BIN_DIR// /\\ }"
+
+          cat > "$DESKTOP_DIR/JugueteriaCasper.desktop" <<DESKTOP
+          [Desktop Entry]
+          Type=Application
+          Name=Juguetería Casper
+          Comment=Sistema de gestión de inventario
+          Exec=$ESCAPED_BIN
+          Icon=$ICON_DIR/JugueteriaCasper.png
+          Terminal=true
+          Categories=Office;
+          DESKTOP
+
+          chmod 644 "$DESKTOP_DIR/JugueteriaCasper.desktop"
+
+          echo "Juguetería Casper se instaló correctamente."
+          echo "Ya podés buscarla en el menú de aplicaciones."
+          EOF
+
+          chmod +x dist/JugueteriaCasper-linux/instalar.sh
+
+      - name: Crear paquete de macOS
+        if: matrix.platform == 'macos'
+        run: |
+          APP="dist/JugueteriaCasper.app"
+          ICONSET="dist/casper.iconset"
+
+          mkdir -p "$APP/Contents/MacOS"
+          mkdir -p "$APP/Contents/Resources"
+          mkdir -p "$ICONSET"
+
+          cp dist/JugueteriaCasper "$APP/Contents/Resources/JugueteriaCasper-bin"
+          cp recursos/casper.png "$APP/Contents/Resources/casper.png"
+
+          for SIZE in 16 32 128 256 512; do
+            DOUBLE=$((SIZE * 2))
+
+            sips -z "$SIZE" "$SIZE" recursos/casper.png \
+              --out "$ICONSET/icon_${SIZE}x${SIZE}.png"
+
+            sips -z "$DOUBLE" "$DOUBLE" recursos/casper.png \
+              --out "$ICONSET/icon_${SIZE}x${SIZE}@2x.png"
+          done
+
+          iconutil -c icns "$ICONSET" \
+            -o "$APP/Contents/Resources/casper.icns"
+
+          cat > "$APP/Contents/Resources/JugueteriaCasper.command" <<'EOF'
+          #!/bin/bash
+          cd "$(dirname "$0")"
+          exec "./JugueteriaCasper-bin"
+          EOF
+
+          chmod +x "$APP/Contents/Resources/JugueteriaCasper.command"
+
+          cat > "$APP/Contents/MacOS/JugueteriaCasper" <<'EOF'
+          #!/bin/bash
+          APP_RESOURCES="$(cd "$(dirname "$0")/../Resources" && pwd)"
+          open -a Terminal "$APP_RESOURCES/JugueteriaCasper.command"
+          EOF
+
+          chmod +x "$APP/Contents/MacOS/JugueteriaCasper"
+
+          cat > "$APP/Contents/Info.plist" <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleExecutable</key>
+              <string>JugueteriaCasper</string>
+              <key>CFBundleIdentifier</key>
+              <string>com.jugueteriacasper.app</string>
+              <key>CFBundleName</key>
+              <string>Juguetería Casper</string>
+              <key>CFBundlePackageType</key>
+              <string>APPL</string>
+              <key>CFBundleIconFile</key>
+              <string>casper.icns</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Comprimir paquete de Ubuntu
+        if: matrix.platform == 'ubuntu'
+        run: |
+          tar -czf "${{ matrix.asset }}" \
+            -C dist JugueteriaCasper-linux
+
+      - name: Comprimir aplicación de macOS
+        if: matrix.platform == 'macos'
+        run: |
+          tar -czf "${{ matrix.asset }}" \
+            -C dist JugueteriaCasper.app
+
+      - name: Adjuntar archivos a GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload v1.0.1 "${{ matrix.asset }}" --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload v1.0.1 "${{ matrix.asset }}" \
+            --repo "$GITHUB_REPOSITORY" --clobber
